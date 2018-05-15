@@ -1,37 +1,95 @@
-## Welcome to GitHub Pages
+<iframe> 
+<div id="div_g" style="width:600px; height:300px;"></div>
+<p>When you zoom and pan, the region remains highlighted.</p>
+<video width="640" height="480" controls >
+    <source src="http://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">Your browser does not support the video tag.
+        
 
-You can use the [editor on GitHub](https://github.com/bentam64/zxfxg/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+    
+    </video>
+<div id="time">stam</div>
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+<script>
 
-### Markdown
+     var dc;
+     var g;
+     var v;
+     var my_graph;
+     var my_area;
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+     var current_time = 0;
+    //when the document is done loading, intialie the video events listeners
+     $(document).ready(function () {
+         v = document.getElementsByTagName('video')[0];
+         v.onseeking = function () {
+                 current_time = v.currentTime * 1000;
+                 draw_marker();
+             };
+         
+         v.oncanplay = function () {
+             CreateGraph();             
+             };
+                  
+         v.addEventListener('timeupdate', function (event) {
+             var t = document.getElementById('time');
+             t.innerHTML = v.currentTime;
+             g.updateOptions({
+                 isZoomedIgnoreProgrammaticZoom: true
+             });
+             
+             current_time = v.currentTime * 1000;
+         }, false);         
+     });
 
-```markdown
-Syntax highlighted code block
+     function change_movie_position(e, x, points) {
+         v.currentTime = x / 1000;
+     }
 
-# Header 1
-## Header 2
-### Header 3
+     function draw_marker() {
+         dc.fillStyle = "rgba(255, 0, 0, 0.5)";
+         var left = my_graph.toDomCoords(current_time, 0)[0] - 2;
+         var right = my_graph.toDomCoords(current_time + 2, 0)[0] + 2;
+         dc.fillRect(left, my_area.y, right - left, my_area.h);
+     };
 
-- Bulleted
-- List
 
-1. Numbered
-2. List
+    //data creation
+     function CreateGraph() {
+         number_of_samples = v.duration * 1000;
+         // A basic sinusoidal data series.
+         var data = [];
+         for (var i = 0; i < number_of_samples; i++) {
+             var base = 10 * Math.sin(i / 90.0);
+             data.push([i, base, base + Math.sin(i / 2.0)]);
+         }
 
-**Bold** and _Italic_ and `Code` text
+         // Shift one portion out of line.
+         var highlight_start = 450;
+         var highlight_end = 500;
+         for (var i = highlight_start; i <= highlight_end; i++) {
+             data[i][2] += 5.0;
+         }
 
-[Link](url) and ![Image](src)
-```
+         g = new Dygraph(
+         document.getElementById("div_g"),
+         data, {
+             labels: ['X', 'Est.', 'Actual'],
+             animatedZooms: true,
+             underlayCallback: function (canvas, area, g) {
+                 dc = canvas;
+                 my_area = area;
+                 my_graph = g;
+                 bottom_left = g.toDomCoords(0, 0);
+                 top_right = g.toDomCoords(highlight_end, +20);
+                 draw_marker();
+             }
+         });
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+         g.updateOptions({
+             clickCallback: change_movie_position
+         }, true);
 
-### Jekyll Themes
+     }
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/bentam64/zxfxg/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+</script>
+</iframe> 
