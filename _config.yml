@@ -1,3 +1,4 @@
+<iframe> 
 <div id="div_g" style="width:600px; height:300px;"></div>
 <p>When you zoom and pan, the region remains highlighted.</p>
 <video width="640" height="480" controls >
@@ -91,3 +92,4 @@
      }
 
 </script>
+</iframe> 
